@@ -1,0 +1,196 @@
+\documentclass{article}
+\author{Hizbullah Abdul Aziz}
+\title{Notes}
+
+\begin{document}
+\maketitle
+
+\section{Graph Algorithms}
+
+% This is the start of the flow algorithms
+\subsection{Flow Problem}
+Given a directed graph $G=(V, E)$, we can construct a flow network by
+defining a capacity function $u: E -> R$ and a flow function $f: E ->
+R$, with relation as follows.
+
+Residual graph
+It must be possible to undo the flow
+
+Augmenting path -> Ford Fulkerson
+In residual graph, find augmenting path until you t is not reachable from
+s i.e. there's an edge with residual flow equal 0
+
+\subsubsection{Edmunds-Karp Algorithm}
+As augmenting path, always choose an s-t path with smallest number of edges,
+which can be found via BFS in $O(m + n)$ time.
+
+with BFS, we can't have down edges (if you put s at top and t somewhere below it) that jumps a level
+
+augmentation along shortest path:
+- saturate at least one down edge effectively kills it in the residual graph
+- creates only up edges
+Note that this cannot shorten any s-t path
+
+Observation: can do saturation at most m times
+=> after <= m iterations distance between s and t must increase
+Distance can increase <n times
+This means total number of augmentations is less than $mn$
+Since finding an augmenting path takes linear time, then total running time is $O(m^2n)$
+
+\subsubsection{Blocking flows algorithm}
+Level network (BFS on graph)
+f is blocking flow in level network if $G_f$ admits no downward s-t path
+
+repeat
+	form level graph in $G_f$ (BFS starting from s)
+	find a blocking flow $f'$ in $G_f$
+	$f = f + f'$
+until s and t are not connected in $G_f$
+
+Note that like EK alg above, each iteration increases distance between s and
+t in $G_f$, so there are at most <n iterations.
+
+Now how to find blocking flow?
+DFS to find s-t path
+	assume no backtrack -> augment this path, then saturates one edge
+
+	if you backtrack along an edge (t cannot be reached along this edge)
+		you can remove this edge from consideration
+
+throughput(v) = min{capacity out, capacity in}
+
+Consider case where all edges have capacity 1.  Then finding a blocking flow takes O(m) time
+
+
+\subsubsection{Unit Network}
+All edges have capacity 1.
+For all nodes v in V\{s,t}, either indeg(v) = 1 or outdeg(v) = 1
+
+Observation: any residual graph of a unit network is also a unit network.  
+Why?  Take any node and see that the resulting residual graph is basically the
+flow network but with the edges reversed.
+
+Claim: Given unit network, and shortest path from s to t has $k+1$ edges.  This
+implies the max flow can have value at most $n/_k$
+Proof: Need to show s-t cut with capacity at most $n/_k$
+Make a level graph.  Then there's a level with at most $n/_k$ vertices.  Then
+take any vertices with one node coming in as the t part and any vertices with
+one node coming out as the s part, forming a cut.  Since this level has at most
+$n/_k$ vertices, then the cut has $n/_k$ edges coming in and out.  Since every
+edge has capacity 1, then $n/_k$ is the capacity of the cut, which is also the
+max flow.
+
+Algorithm for unit network (Karp, Hopcroft)
+1. Run $\sqrt n$ iterations of blocking flow
+2. Run $\sqrt n$ augmenting path finding
+
+
+\subsection{Circulation Problem}
+Network with edge capacities c: E -> Real but no source and sink nodes
+But we have supply/demand b: B -> Real (positive for supply, negative for
+demand)
+
+Constraint: b(V) = 0, that is, sum of all supply at all vertices is zero
+
+Want: flow func f: E -> positive Real such that for every vertices v,
+	Inflow(v) - Outflow(v) + b(v) = 0
+
+Solutions need not exists!
+Therefore the question really is, is the problem feasible?  That is, is there
+such f?
+
+It turns out we can solve this using the max flow
+Lemma: for every circulation problem in G= (V, E; c, b), there exists a max flow
+problem G'= (V', E'; c') s, t such that circulation problem is feasible iff max
+flow value for G' is the sum of all supplies.
+
+
+\subsubsection{Min Cost Circulation Problem}
+Cycle cancelling
+1. Start with a feasible circulation e.g. $\forall a f(a) = 0$
+2. While there's a negative directed circuit $Z\subseteq A^f$ in $G^f$
+   a. compute $\tau = \min \{u^f(a) \in Z\}$
+   b. update every edge $a$: $f(a) = f(a) + \tau if a \in Z f(a) - \tau if -a \in Z f(a) otherwise$
+   c. return f
+
+Theorem: A feasible circulation $f: A -> Z$ is of minimum cost iff
+$G^f$ does not contain a negative directed circuit.
+Proof:
+1. Necessity: suppose there's a negative directed circuit. Thus we
+could update and get a bigger flow, and thus even smaller cost.
+2. Sufficiency: Suppose that each directed circuit in $G^f$ has non-negative cost.  Now we can show that f is indeed the min cost
+
+Theorem: Choosing a Minimum Mean Cycle (MMC) in each iteration leads to at most $4nm^2\ceil \ln n$
+Proof:
+Let $f, f^{-1},\ldots$ be the circulation found in.  For each 
+
+\subsubsection{Reduction to regular circulation problem}
+do some weird shit
+
+% This is the end of the flow algorithms
+
+
+\subsection{Matching}
+$G=(V,E)$ undirected graph
+Match $M\in E$ such that every vertices incident to at most 1 edge in M
+
+M is called maximal iff there's no matching M' with M strictly inside M.  In
+other words, can't add more edges to M.
+
+M is called maximum if |M| is as large as possible.
+
+\subsubsection{Matching in Bipartite Graph}
+G is bipartite if we can partition V into A and B and all edges are between
+vertices in A and vertices in B.
+
+How to find the maximum matching?  Use the unit network algorithm in time
+O(m\sqrt n)
+
+\subsubsection{Matching in General Graph}
+Alternating path in a graph with matching M is a path whose edges alternate
+between in M and not in M.
+
+Augmenting alternating path if it starts and ends in two distinct unmatched
+vertices.
+
+Augmenting path lemma:
+Graph $G=(V,E)$ and matching $M\in E$.  M is maximum iff there's no augmenting
+alternating path.
+Proof: 
+- if there's an augmenting alternating path then we can always construct a bigger matching.
+- assume M is not maximum and M* be the maximum matching.
+	1 could be a cycle (same number of edge for M and M*)
+	2 could be a path
+	3 could be that M and M* contain the same edges
+  since M* is bigger, then there must be situation 2, where we get the augmenting alternating path.
+
+Notion of stem, root, and blossom (which always with respect to some matching M)
+Blossom is basically an odd cycle attached to root.
+Stem always starts with a free vertex and has even edges.
+
+Shrinking a blossom -> contract blossom to a single vertex.
+
+Theorem:
+Graph $G=(V,E)$, matching M and B blossom with respect to M.  There exists an
+augmenting alternating path in G iff there exists an augmenting alternating
+path in G with B shrinked.
+
+Alg to find an augmenting alternating path in O(mn)
+M matching
+free vertices
+matched vertices w, mate(w) -> M = {w,mate(w)}
+Find "alternating" forest
+	node are marked with "unlabelled" "odd" "even"
+Initially all free vertices are even and matched vertices are unlabelled.
+
+Pick some even node v and let w some adjacent vertex
+Explore edge {v,w}.  Now there are several cases
+1. w is unlabelled -> make w child of v; make mate(w) child of w; label w as odd; label mate(w) as even
+2. w is odd -> do nothing
+3. w is even -> if in different tree then found an alternating path
+		else found a blossom; shrink it and start anew
+
+Therefore we can find a matching in $O(n^2m)$
+
+
+\end{document}

@@ -1,0 +1,30 @@
+6. Circulation problem
+G = (V, E)
+$c: E -> R^+$
+$b: V -> R$
+
+The circulation problem is 
+
+$b(S) = flow (V\S, S) - flow(S, V\S)$
+
+Make arbitrary partition of V as (S, V\S).  Then we have that 
+flow(S, V\S) = b(S) <= c(S,V\S)
+
+necessity
+Make arbitrary partition of V as (S, V\S), and set b(S) > 0 (we can always do this).
+Then essentially c(S,V\S) is min cut
+
+
+7. Rounding things
+How to arrive at consistent rounding in the presence of addition?
+A
+
+M_i = \floor \sum A_ij - \sum \floor A_ij
+
+Create a flow with s, bunch or vertices corresponding with rows of A, bunch of
+vertices corresponding with columns of A, and t.
+
+Every edge from s to $r_i$ should have capacity from $M_i$, $M_i + 1$, because
+we could round up or round down.  And accordingly for edges from $c_i$ to t.
+Then create a back edge from t to s, and we have ourselves a circulation
+problem.  Now assign all demands to be 0.
