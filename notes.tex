@@ -1,4 +1,9 @@
 \documentclass{article}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
 \author{Hizbullah Abdul Aziz}
 \title{Notes}
 
@@ -6,18 +11,61 @@
 \maketitle
 
 \section{Graph Algorithms}
+Graph $G=(V,E)$ is defined with a set of vertices $V$ and set of edges $E$.
+For directed graphs, we use $[u,v\rangle=\langle v,u]$ to denote an edge from
+$u$ to $v$.  There are two ways to represent graphs: adjacency matrices
+($O(n^2)$ space complexity) and adjacency lists.  For every vertices $v$, we
+associate $indeg(v)$ and $outdeg(v)$ as the number of edges going into and
+going out of $v$, respectively.
+
+\subsection{Searching}
+\subsubsection{Depth-First Search}
+Depth-First Search creates a search tree by exploring each node until it reach
+some node that doesn't have any outgoing nodes or the only outgoing nodes are
+already visited.
+\begin{algorithm}
+  \caption{Depth-First Search}\label{graph:dfs}
+  \begin{algorithmic}
+    \Function{DFS}{g}
+    \ForAll{v in V}\Comment{Initialization}
+      \State $color[v]=\texttt{white}$
+      \State $\pi[v]=\texttt{nil}$\Comment{Parent pointer}
+    \EndFor
+    \State $time = 0$
+    \ForAll{v in V}
+      \If{$color[v]=\texttt{white}$}
+        \State\Call{DFS-visit}{v}
+      \EndIf
+    \EndFor
+    \EndFunction
+    \State
+    \Function{DFS-visit}{u}
+      \State $color[u]=\texttt{grey}$
+      \State $d[u]=t+1$\Comment{Discovery time}
+      \ForAll{v in Out[u]}
+      \If{$color[v]=\texttt{white}$}
+        \State\Call{DFS-visit}{v}
+        \State $\pi[v]=u$
+      \EndIf
+      \State $color[u]=\texttt{black}$
+      \State $f[u]=time+1$\Comment{Finishing time}
+      \EndFor
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
 
 % This is the start of the flow algorithms
 \subsection{Flow Problem}
-Given a directed graph $G=(V, E)$, we can construct a flow network by
-defining a capacity function $u: E -> R$ and a flow function $f: E ->
+Given a directed graph $G=(V, E)$, we can construct a flow network by defining
+a capacity function $u: E\rightarrow R$ and a flow function $f: E\rightarrow
 R$, with relation as follows.
 
 Residual graph
 It must be possible to undo the flow
 
-Augmenting path -> Ford Fulkerson
-In residual graph, find augmenting path until you t is not reachable from
+\subsubsection{Ford Fulkerson}
+In residual graph, find augmenting path until t is not reachable from
 s i.e. there's an edge with residual flow equal 0
 
 \subsubsection{Edmunds-Karp Algorithm}
