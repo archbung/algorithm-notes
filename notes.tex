@@ -1,5 +1,7 @@
 \documentclass{article}
-\usepackage{amsmath}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
 \usepackage{geometry}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
@@ -7,6 +9,12 @@
 \usepackage{mathtools}
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}{Lemma}[theorem]
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
 
 \author{Hizbullah Abdul Aziz}
 \title{Notes}
