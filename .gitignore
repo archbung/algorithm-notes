@@ -1,1 +1,7 @@
 auto
+*aux
+*fls
+*fdb*
+*pdf
+*log
+*synctex*
