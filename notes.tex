@@ -12,11 +12,20 @@
 
 \section{Graph Algorithms}
 Graph $G=(V,E)$ is defined with a set of vertices $V$ and set of edges $E$.
-For directed graphs, we use $[u,v\rangle=\langle v,u]$ to denote an edge from
-$u$ to $v$.  There are two ways to represent graphs: adjacency matrices
-($O(n^2)$ space complexity) and adjacency lists.  For every vertices $v$, we
-associate $indeg(v)$ and $outdeg(v)$ as the number of edges going into and
-going out of $v$, respectively.
+Now, some notations:
+\begin{description}
+  \item[Sizes] $m=|E|$ and $n=|V|$
+  \item[Directed edge] $[u,v\rangle=\langle v,u]$ denotes an edge from $u$ to
+    $v$
+  \item[Out- and In- degree] number of edges going out and in of vertex $v$,
+    $Out(v)$ and $In(v)$ respectively
+\end{description}
+
+There are two ways to represent graphs: adjacency matrices and adjacency lists.
+Adjacency matrix needs space $O(n^2)$, which is inefficient for sparse graphs.
+Conversely, adjacency list needs space $$\sum_{u\in V} (Out(v) + 1)=|E|+n=m+n$$
+which is efficient for sparse graphs.
+
 
 \subsection{Searching}
 \subsubsection{Depth-First Search}
