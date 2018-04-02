@@ -1,5 +1,4 @@
-
-\section{Graph Algorithms}
+\section{Graph}
 Graph $G=(V,E)$ is defined with a set of vertices $V$ and set of edges $E$.
 Now, some notations:
 \begin{description}
@@ -21,7 +20,6 @@ which is efficient for sparse graphs.
 
 
 \subsection{Searching}
-\subsubsection{Depth-First Search}
 Depth-First Search (DFS) creates a search tree by exploring each node until it
 reach some node that doesn't have any outgoing nodes or the only outgoing nodes
 are already visited.  A DFS pseudocode is shown in Algorithm~\ref{graph:dfs}.
@@ -101,6 +99,107 @@ follows:
   Since computing $G^T$ takes $O(m)$ time, the running time of this algorithm
   follows from the running time of DFS.
 \end{proof}
+
+
+\subsection{Single Source Shortest Path}
+Given a directed graph $G$, assign weight $w: E\rightarrow\mathbb{R}$ to each
+edge.  This can be generalized easily to undirected graphs by creating two
+edges (one for each direction) for every edges in the directed graph, and then
+assigning weight appropriately.
+\begin{definition}{Shortest path}
+  A path $p=\langle u_0,\ldots,u_k\rangle$ from
+  $u=u_0\xrightarrow{e_1}\ldots\xrightarrow{e_k} u_k=v$ has a total weight of
+  $w(p)=\sum_i w(e_i)$.  Shortest path is path with minimal weight.
+\end{definition}
+
+Therefore the single source shortest path (SSSP) problem can be stated as given
+a starting vertex $s$, compute the shortest $s$-$v$ path $d[v]$ for all $v\in
+V$.
+
+\begin{theorem}{Subpath optimality.}
+  \label{graph:subpath-optimality}
+  If $d[u]=w(p)$, $p=\langle s=u_0,\ldots,u_k=u\rangle$ is a shortest $s$-$v$
+  path, then for every $u_i$, $0\leq i<k$, $d[u_i]$ is also a shortest path.
+\end{theorem}
+\begin{proof}
+  We proceed by contraposition.  Suppose $d[u_i]$, for some $i$, is not
+  a shortest path.  Then there is a shortest path $d'[u_i]\leq d[u_i]$.  But
+  then, using $d'[u_i]$, we can construct a path $d'[u]\leq d[u]$.
+\end{proof}
+
+\begin{algorithm}
+  \caption{Relaxing edge $e=[u,v\rangle$}\label{graph:edge-relax}
+  \begin{algorithmic}
+    \Function{relax}{e}
+      \If{$\delta[u]+w([u,v\rangle)<\delta[v]$}\Comment{$\delta$ is the current shortest path}
+      \State $\delta[v]=\delta[u]+w([u,v\rangle)$
+      \State $\pi[v]=u$
+      \EndIf
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{definition}{Negative cycle.}
+  A negative cycle is a cycle with negative overall weight.
+\end{definition}
+
+\begin{lemma}
+  \label{graph:relax}
+  Assuming no negative cycles, a shortest path
+  $s=u_0\xrightarrow{e_1}\ldots\xrightarrow{e_k}u_k$ if a sequence of relax
+  operations happen that contains
+  $\texttt{relax}(e_1),\ldots,\texttt{relax}(e_k)$ as a subsequence (not
+  necessarily contiguous), then afterwards we have $\delta[u_k]=d[u_k]$.
+\end{lemma}
+
+The simplest algorithm to compute SSSP is the Bellman-Ford algorithm, shown in
+Algorithm~\ref{graph:bellman-ford}.  The correctness of this algorithm follows
+from Lemma~\ref{graph:relax}.  It is straightforward to show that the
+Bellman-Ford algorithm runs in $O(nm)$ time.
+\begin{algorithm}
+  \caption{Bellman-Ford}\label{graph:bellman-ford}
+  \begin{algorithmic}
+    \Function{Bellman-Ford}{G}
+      \State Initialize $d[v]$ and $\pi[v]$ for all $v\in V$
+      \For{$i=1$ to $n-1$}
+        \ForAll{edge $e$ in path}
+        \State \texttt{relax}(e)
+        \EndFor
+      \EndFor
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+If all edge weights are non-negative, we can use Dijkstra's algorithm
+(Algorithm~\ref{graph:dijkstra}).  To implement Dijkstra's algorithm
+efficiently, we need a priority queue \texttt{PQ} which can be implemented
+using a Fibonacci heap or a hollow heap.  Since \texttt{delteMin} takes $O(\log
+n)$ and $\sum_v Out(v)=m$, Dijkstra's algorithm runs in $O(n\log n+m)$.
+\begin{algorithm}
+  \caption{Dijkstra}\label{graph:dijkstra}
+  \begin{algorithmic}
+    \Function{Dijkstra}{G}
+    \State Creates \texttt{PQ} with $v$ for all $v\in V$
+    \State Initializes the key with initial $\delta[v]$
+      \While{$\texttt{PQ}\ne\emptyset$}
+        \State $u=\texttt{delteMin}(\texttt{PQ})$\Comment{Now $\delta[u]=d[u]$}
+        \ForAll{$v\in Out(u)$}
+          \If{$\delta[u]+w([u,v\rangle)<\delta[v]$}
+            \State $\delta[u]+w([u,v\rangle)=\delta[v]$
+            \State $\pi[v]=u$
+            \State $\texttt{decreaseKey}(v)$
+          \EndIf
+        \EndFor
+      \EndWhile
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+To argue for correctness of Dijkstra's algorithm, we use the following
+invariants.  Define $U$ as the set of vertices not in \texttt{PQ} anymore and
+$U'=V\setminus U$.  Then for all $u\in U$, $\delta[u]=d[u]$ and $\pi[u]$ gives
+the shortest path tree.  On the other hand, for all $v\in U'$,
+$\delta[v]\geq\max\{\delta[u]|u\in U\}$.
 
 % This is the start of the flow algorithms
 %\subsection{Flow Problem}
