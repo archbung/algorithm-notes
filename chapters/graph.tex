@@ -102,8 +102,8 @@ follows:
 
 
 \subsection{Single Source Shortest Path}
-Given a directed graph $G$, assign weight $w: E\rightarrow\mathbb{R}$ to each
-edge.  This can be generalized easily to undirected graphs by creating two
+Given a directed graph $G$, assign weight/cost $w: E\rightarrow\mathbb{R}$ to
+each edge.  This can be generalized easily to undirected graphs by creating two
 edges (one for each direction) for every edges in the directed graph, and then
 assigning weight appropriately.
 \begin{definition}{Shortest path}
@@ -200,6 +200,77 @@ invariants.  Define $U$ as the set of vertices not in \texttt{PQ} anymore and
 $U'=V\setminus U$.  Then for all $u\in U$, $\delta[u]=d[u]$ and $\pi[u]$ gives
 the shortest path tree.  On the other hand, for all $v\in U'$,
 $\delta[v]\geq\max\{\delta[u]|u\in U\}$.
+
+
+\subsection{All Pairs Shortest Path}
+The All Pairs Shortest Path (APSP) problem asks to compute the shortest
+$i\rightsquigarrow j$ for all $(i,j)\in V^2$.  Related to this problem is the
+All Pairs Distance problem, which asks the length of the shortest path for all
+pairs of vertices.  Given a graph $G=(V,E)$, the trivial solution is to run the
+Bellman-Ford algorithm for each $v\in V$.  This gives us a running time of
+$O(n^2m)$.  Can we do better?
+
+\begin{definition}{Reduced costs.}
+  Define a function $\phi: V\rightarrow\mathbb{R}$.  Then the reduced cost is
+  $w_\phi([u,v\rangle)=w(u,v\rangle)+\phi(u)-\phi(v)$.
+\end{definition}
+Given a path $p=u_0\xrightarrow{e_1}\ldots\xrightarrow{e_k}u_k$, the reduced cost
+of this path is,
+\begin{align*}
+  w_\phi(p) &= w_\phi(u_0\xrightarrow{e_1}\ldots\xrightarrow{e_k}u_k)\\
+            &= (\phi(u_0)+w(e_1)-\phi(u_1))+\ldots+(\phi(u_k-1)+w(e_k)-\phi(u_k))\\
+            &= \phi(u_0)+w(e_1)+\ldots+w(e_k)-\phi(u_k)\\
+            &= \phi(u_0)+w(p)-\phi(u_k)\\
+\end{align*}
+therefore shortest path with respect to $w$ is also shortest path with respetc
+to $w_\phi$.
+
+Now we proceed to outline a faster algorithm for APSP.  The idea is to use
+Dijkstra's algorithm somehow (recall that it requires all the costs to be
+non-negative, so it can't be applied directly to arbitrary graphs).  To do
+this, we proceed as follows:
+\begin{enumerate}
+  \item Pick some $s\in V$
+  \item Run Bellman-Ford to solve SSSP for $s$, we get $d[v]$ for all $v\in V$
+  \item Choose $\phi=\max\{d[v]|v\in V\}$
+  \item Run Dijkstra's algorithm with reduced costs $w_\phi$
+\end{enumerate}
+It is straightforward to show that this algorithm runs in $O(n^2\log n + nm)$
+time.  This algorithm works since after running Bellman-Ford algorithm, no edge
+can be relaxed anymore.  Therefore we have $d[v]\leq d[u]+w([u,v\rangle)\iff
+  0\leq d[u]+w[u,v\rangle -d[v]$ and thus $w_\phi\geq 0$.
+
+
+\subsection{Minimum Spanning Tree}
+Consider an undirected graph $G=(V,E)$ with weights $w$ associated to each of
+its edges.  The Minimum Spanning Tree (MST) of this graph is a tree that spans
+the entire vertices of $G$ and has minimum total weight. 
+
+\begin{definition}{Cut edge.}
+  Partition the vertices $V$ of a graph $G$ into nonempty set $U$ and $U'$.  An
+  edge $e=[i,j]$ is a cut edge if $i\in U$ and $j\in U'$.
+\end{definition}
+\begin{lemma}
+  If $U$ and $U'$ is a cut of $G$ and $e$ is a cut edge of minimal weight, then
+  there exists an MST for $G$ that contains $e$.
+\end{lemma}
+\begin{proof}
+  Suppose there's a spanning tree $T$ that doesn't include $e$.  Then it must
+  include some other cut edge $e'$ that connects $U$ and $U'$, otherwise it
+  wouldn't be a spanning tree.  By using $e$ instead of $e'$, $T$ will have
+  minimal weight, hence becoming an MST.
+\end{proof}
+\begin{lemma}
+  Let $C$ be a cycle in $G$ and let $e$ be an edge of $C$ that has larger
+  weight than any other edges of C.  Then no MST of $G$ contains $e$.
+\end{lemma}
+\begin{proof}
+  Choose $U$ and $U'$ such that $e$ be one of the cut edges.  Since $C$ is
+  a cycle, there exists another cut edges $e'$ with $w(e')<w(e)$.
+  A spanning tree of $G$ will have a lower weight if it includes $e'$ instead
+  of $e$, therefore a spanning tree which includes $e$ cannot be an MST.
+\end{proof}
+
 
 % This is the start of the flow algorithms
 %\subsection{Flow Problem}
