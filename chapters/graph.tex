@@ -271,7 +271,71 @@ the entire vertices of $G$ and has minimum total weight.
   of $e$, therefore a spanning tree which includes $e$ cannot be an MST.
 \end{proof}
 
+Now we will outline a generic MST algorithm.  The idea is to partition $V$ into
+$V_1,\ldots,V_k$, where for each $V_i$ we have a MST $T_i$, and we start with
+singleton sets as the initial partiion.  Then, we do the following on repeat:
+\begin{enumerate}
+  \item Pick some $V_i$ with MST $T_i$
+	\item Determine an edge $e$ of smallest weight with one endpoint in $V_i$
+	\item Let $V_j$ be the set containing the other endpoint of $e$
+	\item Join $T_i$ and $T_j$, $V_i=V_i\cup V_j$
+\end{enumerate}
+There are some popular algorithms to compute MST, such as Kruskal's
+(Algorithm~\ref{graph:kruskal}) and Prim's (Algorithm~\ref{graph:prim}).  For
+Kruskal's algorithm, if the body inside the \texttt{for} loop is implemented
+using the union-find data structure, the entire \texttt{for} loop will take
+$O(m\alpha(m,n))$ time, thus achieving the overall running time of $O(n\log
+n+m\alpha(m,n))$.  On the other hand, Prim's algorithm can achieve a running
+time of $O(n\log n+\sum_v deg(v))$ using efficient priority queues.
 
+\begin{algorithm}
+  \caption{Kruskal's algorithm}\label{graph:kruskal}
+  \begin{algorithmic}
+    \Function{Kruskal}{G}
+    \State Partition $V$ into singleton sets
+    \State Sort edges in increasing order $w(e_1)\leq\ldots\leq w(e_m)$
+      \For{$i=1$ to $m$}
+        \State Let $e_i=[u,v]$
+        \State Determine $V_k$ which contains $u$
+        \State Determine $V_l$ which contains $v$
+        \If{$k\neq l$}
+          \State Include $e_i$ in $T$
+          \State Replace $V_k$ and $V_l$ by $V_k\cup V_l$
+        \EndIf
+      \EndFor
+      \State
+      \Return $T$
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Prims's algorithm}\label{graph:prim}
+  \begin{algorithmic}
+    \Function{Prim}{G}
+      \State $U=\{s\}$\Comment{$s$ some start vertex}
+      \State $T=\emptyset$
+      \State $\texttt{PQ}=\emptyset$
+      \ForAll{$v\in Adj(s)$}
+        \State $\pi[v]=s$
+        \State \texttt{insert} $v$ into \texttt{PQ} with $\texttt{key}=w([v,s])$
+      \EndFor
+      \Repeat
+        \State $v=\texttt{deleteMin}(\texttt{PQ})$
+        \State Include $\{v,\pi[v]\}$ to $T$
+        \ForAll{$x\in Adj(v)$}
+          \If{$x\notin U$}
+            \If{$w([x,v])<\texttt{key}[x]$}
+              \State $\pi[x]=v$
+              \State $\texttt{decreaseKey}(x,w[x,v])$
+            \EndIf
+          \EndIf
+        \EndFor
+      \Until{$\texttt{PQ}=\emptyset$}
+      \State\Return $T$
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
 % This is the start of the flow algorithms
 %\subsection{Flow Problem}
 %Given a directed graph $G=(V, E)$, we can construct a flow network by defining
