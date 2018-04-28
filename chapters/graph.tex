@@ -336,11 +336,25 @@ time of $O(n\log n+\sum_v deg(v))$ using efficient priority queues.
     \EndFunction
   \end{algorithmic}
 \end{algorithm}
+
+
 % This is the start of the flow algorithms
-%\subsection{Flow Problem}
-%Given a directed graph $G=(V, E)$, we can construct a flow network by defining
-%a capacity function $u: E\rightarrow R$ and a flow function $f: E\rightarrow
-%R$, with relation as follows.
+\subsection{Network Flow}
+Given a directed graph $G=(V, E)$, we can construct a flow network by defining
+a capacity function $c: E\rightarrow R$ and a flow function $f$.  Additionally,
+we designate two vertices $s$ and $t$ as 'source' and 'sink' respectively.
+\begin{table}
+  \label{graph:flow-table}
+  \begin{tabular}{lll}
+    \toprule
+    $f:E\rightarrow\mathbb{R}$  &$f:(V\times V)\rightarrow\mathbb{R}$   &Name \\
+    \midrule
+    $\forall e: f(e)\leq c(e)   &$\forall u,v\in V: f(u,v)\leq c([u,v\rangle)$  &capacity constraint\\
+    $\forall e: f(e)=-f(-e)$    &$\forall u,v\in V: f(u,v)=-f(v,u)$             &skew symmetry      \\
+    %$\sum_$
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 %Residual graph
 %It must be possible to undo the flow
